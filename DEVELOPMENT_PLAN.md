@@ -95,3 +95,32 @@ Write SQL script (sql\init.sql) to fill tables with test examples. Store it in y
   Checked status in db
   
   ![alt text](pics/image-14.png)
+
+  ✅ Create users table and integrate with it
+
+  #### Testing 
+  Step 1 — Register
+  Invoke-RestMethod -Method Post -Uri "https://r4habz0xwf.execute-api.eu-central-1.amazonaws.com/api/auth/register" -ContentType "application/json" -Body '{"name":"testuser-2","password":"testpass"}'
+
+  ![alt text](pics/image-15.png)
+
+  ![alt text](pics/image-16.png)
+
+  Step 2 — Try register same user again (should fail)
+  Invoke-RestMethod -Method Post -Uri "https://r4habz0xwf.execute-api.eu-central-1.amazonaws.com/api/auth/register" -ContentType "application/json" -Body '{"name":"testuser-2","password":"testpass"}'
+  
+  ![alt text](pics/image-17.png)
+
+  Step 3 — Add item to cart (verifies auth still works)
+  $b64 = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("testuser-2:testpass"))
+  Invoke-RestMethod -Method Put -Uri "https://r4habz0xwf.execute-api.eu-central-1.amazonaws.com/api/profile/cart" -Headers @{Authorization="Basic $b64"} -ContentType "application/json" -Body '{"product":{"id":"6a3ea7b3-def1-4974-8cf9-e06168270039","title":"Test","description":"Desc","price":10},"count":1}'
+
+  ![alt text](pics/image-18.png)
+
+  Step 4 — Verify in DB
+  SELECT id, name, email FROM users;
+  Should show testuser-2 row — proving users now survive restarts.
+
+  ![alt text](pics/image-19.png)
+
+  

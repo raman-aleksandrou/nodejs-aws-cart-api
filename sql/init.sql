@@ -1,3 +1,10 @@
+CREATE TABLE IF NOT EXISTS users (
+  id        UUID PRIMARY KEY,
+  name      TEXT NOT NULL UNIQUE,
+  email     TEXT,
+  password  TEXT NOT NULL
+);
+
 CREATE TYPE cart_status AS ENUM ('OPEN', 'ORDERED');
 CREATE TYPE order_status AS ENUM ('OPEN', 'APPROVED', 'CONFIRMED', 'SENT', 'COMPLETED', 'CANCELLED');
 
