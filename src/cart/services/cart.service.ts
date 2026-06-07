@@ -1,62 +1,94 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
+import { Pool } from 'pg';
 import { Cart, CartStatuses } from '../models';
 import { PutCartPayload } from 'src/order/type';
+import { PG_POOL } from 'src/database/database.module';
 
 @Injectable()
 export class CartService {
-  private userCarts: Record<string, Cart> = {};
+  constructor(@Inject(PG_POOL) private pool: Pool) {}
 
-  findByUserId(userId: string): Cart {
-    return this.userCarts[userId];
+  async findByUserId(userId: string): Promise<Cart | null> {
+    const { rows: cartRows } = await this.pool.query(
+      `SELECT * FROM carts WHERE user_id = $1 AND status = $2`,
+      [userId, CartStatuses.OPEN],
+    );
+
+    if (!cartRows.length) return null;
+
+    const cart = cartRows[0];
+    const { rows: itemRows } = await this.pool.query(
+      `SELECT * FROM cart_items WHERE cart_id = $1`,
+      [cart.id],
+    );
+
+    return {
+      id: cart.id,
+      user_id: cart.user_id,
+      created_at: new Date(cart.created_at).getTime(),
+      updated_at: new Date(cart.updated_at).getTime(),
+      status: cart.status,
+      items: itemRows.map((row) => ({
+        product: { id: row.product_id, title: '', description: '', price: 0 },
+        count: row.count,
+      })),
+    };
   }
 
-  createByUserId(user_id: string): Cart {
-    const timestamp = Date.now();
+  async createByUserId(user_id: string): Promise<Cart> {
+    const id = randomUUID();
+    const now = new Date();
 
-    const userCart = {
-      id: randomUUID(),
+    await this.pool.query(
+      `INSERT INTO carts (id, user_id, created_at, updated_at, status)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [id, user_id, now, now, CartStatuses.OPEN],
+    );
+
+    return {
+      id,
       user_id,
-      created_at: timestamp,
-      updated_at: timestamp,
+      created_at: now.getTime(),
+      updated_at: now.getTime(),
       status: CartStatuses.OPEN,
       items: [],
     };
-
-    this.userCarts[user_id] = userCart;
-
-    return userCart;
   }
 
-  findOrCreateByUserId(userId: string): Cart {
-    const userCart = this.findByUserId(userId);
+  async findOrCreateByUserId(userId: string): Promise<Cart> {
+    const cart = await this.findByUserId(userId);
+    return cart ?? this.createByUserId(userId);
+  }
 
-    if (userCart) {
-      return userCart;
+  async updateByUserId(userId: string, payload: PutCartPayload): Promise<Cart> {
+    const cart = await this.findOrCreateByUserId(userId);
+    const { product, count } = payload;
+
+    if (count === 0) {
+      await this.pool.query(
+        `DELETE FROM cart_items WHERE cart_id = $1 AND product_id = $2`,
+        [cart.id, product.id],
+      );
+    } else {
+      await this.pool.query(
+        `INSERT INTO cart_items (cart_id, product_id, count)
+         VALUES ($1, $2, $3)
+         ON CONFLICT (cart_id, product_id)
+         DO UPDATE SET count = $3`,
+        [cart.id, product.id, count],
+      );
     }
 
-    return this.createByUserId(userId);
-  }
-
-  updateByUserId(userId: string, payload: PutCartPayload): Cart {
-    const userCart = this.findOrCreateByUserId(userId);
-
-    const index = userCart.items.findIndex(
-      ({ product }) => product.id === payload.product.id,
+    await this.pool.query(
+      `UPDATE carts SET updated_at = $1 WHERE id = $2`,
+      [new Date(), cart.id],
     );
 
-    if (index === -1) {
-      userCart.items.push(payload);
-    } else if (payload.count === 0) {
-      userCart.items.splice(index, 1);
-    } else {
-      userCart.items[index] = payload;
-    }
-
-    return userCart;
+    return this.findByUserId(userId);
   }
 
-  removeByUserId(userId): void {
-    this.userCarts[userId] = null;
+  async removeByUserId(userId: string): Promise<void> {
+    await this.pool.query(`DELETE FROM carts WHERE user_id = $1`, [userId]);
   }
 }
