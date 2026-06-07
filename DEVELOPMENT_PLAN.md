@@ -143,3 +143,6 @@ Write SQL script (sql\init.sql) to fill tables with test examples. Store it in y
   Both order_status = OPEN and cart_status = ORDERED must be if the transaction rolled back
 
   ![alt text](pics/image-23.png)
+
+  ✅ Integrate Cart service with FE repository
+  https://github.com/raman-aleksandrou/nodejs-aws-shop-react/pull/4
