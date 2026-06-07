@@ -66,7 +66,7 @@ export class CartController {
 
     const { id: cartId, items } = cart;
     const total = calculateCartTotal(items);
-    const order = this.orderService.create({
+    const order = await this.orderService.create({
       userId,
       cartId,
       items: items.map(({ product, count }) => ({
@@ -76,14 +76,14 @@ export class CartController {
       address: body.address,
       total,
     });
-    await this.cartService.removeByUserId(userId);
+    await this.cartService.setOrdered(cartId);
 
     return { order };
   }
 
   @UseGuards(BasicAuthGuard)
   @Get('order')
-  getOrder(): Order[] {
+  async getOrder(): Promise<Order[]> {
     return this.orderService.getAll();
   }
 }

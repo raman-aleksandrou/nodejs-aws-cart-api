@@ -88,6 +88,13 @@ export class CartService {
     return this.findByUserId(userId);
   }
 
+  async setOrdered(cartId: string): Promise<void> {
+    await this.pool.query(
+      `UPDATE carts SET status = $1::cart_status, updated_at = $2 WHERE id = $3`,
+      [CartStatuses.ORDERED, new Date(), cartId],
+    );
+  }
+
   async removeByUserId(userId: string): Promise<void> {
     await this.pool.query(`DELETE FROM carts WHERE user_id = $1`, [userId]);
   }

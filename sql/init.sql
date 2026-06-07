@@ -1,4 +1,5 @@
 CREATE TYPE cart_status AS ENUM ('OPEN', 'ORDERED');
+CREATE TYPE order_status AS ENUM ('OPEN', 'APPROVED', 'CONFIRMED', 'SENT', 'COMPLETED', 'CANCELLED');
 
 CREATE TABLE IF NOT EXISTS carts (
   id          UUID PRIMARY KEY,
@@ -13,6 +14,17 @@ CREATE TABLE IF NOT EXISTS cart_items (
   product_id  UUID     NOT NULL,
   count       INTEGER  NOT NULL CHECK (count > 0),
   PRIMARY KEY (cart_id, product_id)
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+  id          UUID PRIMARY KEY,
+  user_id     UUID         NOT NULL,
+  cart_id     UUID         NOT NULL REFERENCES carts(id),
+  payment     JSONB,
+  delivery    JSONB,
+  comments    TEXT,
+  status      order_status NOT NULL DEFAULT 'OPEN',
+  total       NUMERIC(10, 2) NOT NULL DEFAULT 0
 );
 
 -- Seed data
