@@ -123,4 +123,23 @@ Write SQL script (sql\init.sql) to fill tables with test examples. Store it in y
 
   ![alt text](pics/image-19.png)
 
-  
+ ✅ Transaction based creation of checkout
+  Step 1 — Register
+  Invoke-RestMethod -Method Post -Uri "https://r4habz0xwf.execute-api.eu-central-1.amazonaws.com/api/auth/register" -ContentType "application/json" -Body '{"name":"testuser-3","password":"testpass"}'
+
+  ![alt text](pics/image-20.png)
+
+  Step 2 — Add item to cart
+  $b64 = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("testuser-3:testpass"))
+  Invoke-RestMethod -Method Put -Uri "https://r4habz0xwf.execute-api.eu-central-1.amazonaws.com/api/profile/cart" -Headers @{Authorization="Basic $b64"} -ContentType "application/json" -Body '{"product":{"id":"6a3ea7b3-def1-4974-8cf9-e06168270039","title":"Test","description":"Desc","price":10},"count":2}'
+
+  ![alt text](pics/image-21.png)
+
+  Step 3 — Checkout (runs inside transaction)
+  Invoke-RestMethod -Method Put -Uri "https://r4habz0xwf.execute-api.eu-central-1.amazonaws.com/api/profile/cart/order" -Headers @{Authorization="Basic $b64"} -ContentType "application/json" -Body '{"address":{"address":"123 St","firstName":"John","lastName":"Doe","comment":""}}'
+
+  ![alt text](pics/image-22.png)
+
+  Both order_status = OPEN and cart_status = ORDERED must be if the transaction rolled back
+
+  ![alt text](pics/image-23.png)

@@ -15,6 +15,7 @@ import { Order, OrderService } from '../order';
 import { AppRequest, getUserIdFromRequest } from '../shared';
 import { calculateCartTotal } from './models-rules';
 import { CartService } from './services';
+import { CheckoutService } from './services/checkout.service';
 import { CartItem } from './models';
 import { CreateOrderDto, PutCartPayload } from 'src/order/type';
 
@@ -23,6 +24,7 @@ export class CartController {
   constructor(
     private cartService: CartService,
     private orderService: OrderService,
+    private checkoutService: CheckoutService,
   ) {}
 
   @UseGuards(BasicAuthGuard)
@@ -66,17 +68,12 @@ export class CartController {
 
     const { id: cartId, items } = cart;
     const total = calculateCartTotal(items);
-    const order = await this.orderService.create({
+    const order = await this.checkoutService.checkout(
       userId,
       cartId,
-      items: items.map(({ product, count }) => ({
-        productId: product.id,
-        count,
-      })),
-      address: body.address,
+      body.address,
       total,
-    });
-    await this.cartService.setOrdered(cartId);
+    );
 
     return { order };
   }
