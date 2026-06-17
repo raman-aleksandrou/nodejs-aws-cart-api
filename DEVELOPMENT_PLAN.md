@@ -205,8 +205,11 @@ Measured three ways:
 ![alt text](pics/image-28.png)
 
 - Update the app and deploy changes using the eb deploy command.
-Before update :
+
+Before update — `GET /ping`:
 
 ![alt text](pics/image-29.png)
 
-After update and deploy:
+After update and deploy — `GET /ping`:
+
+![alt text](pics/image-30.png)
