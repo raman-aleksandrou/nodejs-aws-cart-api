@@ -178,3 +178,35 @@ Measured three ways:
 
 #### Linting
 - `docker run --rm -i hadolint/hadolint < Dockerfile` → **0 findings** (clean pass).
+
+  ### Task 9.2 ✅
+1. Prepare Cart Service infrastructure with Elastic Beanstalk. ✅
+- Use a Dockerfile from previous subtask to deploy your Cart Service using AWS Beanstalk CLI.
+- Initiate an Elastic Beanstalk application using the eb init command. Application name must follow the following convention {yours_github_account_login}-cart-api.
+- Create a new environment using the eb create command. An environment name must be short but not less then four signs (e.g develop, test, prod, etc). Use the --cname option {yours_github_account_login}-cart-api-{environment_name} so that Elastic Beanstalk will use it to create a proper domain name. Use the --single option to not use any Load Balancer for this environment. Use --envvars flag to pass environment variables to your deploment, which is necessary to create DataBase connection
+
+![alt text](pics/image-24.png)
+
+![alt text](pics/image-25.png)
+
+#### Result
+- Environment `prod`: **Status `Ready`, Health `Green`**.
+- Domain: `http://raman-aleksandrou-cart-api-prod.eu-central-1.elasticbeanstalk.com`
+
+2. Deploy Cart Service with Elastic Beanstalk ✅
+- Investigate AWS Elastic Beanstalk service in the AWS Console.
+
+![alt text](pics/image-26.png)
+
+![alt text](pics/image-27.png)
+
+- Walk through EC2 resources that were created by Elastic Beanstalk
+
+![alt text](pics/image-28.png)
+
+- Update the app and deploy changes using the eb deploy command.
+Before update :
+
+![alt text](pics/image-29.png)
+
+After update and deploy:
