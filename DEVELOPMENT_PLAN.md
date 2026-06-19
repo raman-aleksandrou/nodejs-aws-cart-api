@@ -220,3 +220,16 @@ CF - https://d20yrfgj13ai1q.cloudfront.net/
 - Replace Cart Service placeholder in src/constants/apiPaths.ts using a Cart Service API URL you get after successful deployment.
 - Make sure your app starts to call Cart Service API when you add or remove items.
 pr- https://github.com/raman-aleksandrou/nodejs-aws-shop-react/pull/5
+
+### Additional (optional) tasks
+- Environment is created and the app is deployed to the AWS cloud. You must provide a link to your GitHub repo with Cart Service API or PR with created Dockerfile and related configurations.
+
+![alt text](pics/image-24.png)
+
+![alt text](pics/image-25.png)
+
+- FE application is updated with Cart API endpoint. You must provide a PR with updates in your FE repository and OPTIONALLY link to deployed front-end app which makes proper API calls to your Cart Service.
+CF - https://d20yrfgj13ai1q.cloudfront.net/
+pr- https://github.com/raman-aleksandrou/nodejs-aws-shop-react/pull/5
+
+![alt text](pics/image-31.png)
