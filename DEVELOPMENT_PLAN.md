@@ -213,3 +213,10 @@ Before update — `GET /ping`:
 After update and deploy — `GET /ping`:
 
 ![alt text](pics/image-30.png)
+
+3. Update FE app ✅
+CF - https://d20yrfgj13ai1q.cloudfront.net/
+- Pull the latest version of the app from repo
+- Replace Cart Service placeholder in src/constants/apiPaths.ts using a Cart Service API URL you get after successful deployment.
+- Make sure your app starts to call Cart Service API when you add or remove items.
+pr- https://github.com/raman-aleksandrou/nodejs-aws-shop-react/pull/5
