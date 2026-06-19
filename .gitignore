@@ -1,6 +1,10 @@
 # compiled output
 /dist
 /node_modules
+cdk/node_modules
+cdk/dist
+cdk/cdk.out
+tsconfig.build.tsbuildinfo
 
 # Logs
 logs
