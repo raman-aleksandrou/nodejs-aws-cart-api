@@ -26,6 +26,7 @@ export class AppController {
     return {
       statusCode: HttpStatus.OK,
       message: 'OK',
+      version: 'v2',
     };
   }
 

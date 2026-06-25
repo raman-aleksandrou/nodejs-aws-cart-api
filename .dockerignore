@@ -1,0 +1,68 @@
+# .dockerignore — keeps the build context small and the image clean.
+# Every entry below is excluded from the context sent to the Docker daemon.
+# A smaller context means faster builds and no accidental leakage of local
+# artifacts into image layers.
+
+# --- Application/npm generated output ---------------------------------------
+
+# node_modules: installed fresh inside the image with `npm ci`. Copying the
+# host's modules would bloat the context and risk shipping OS-specific native
+# binaries (e.g. pg) built for the host instead of the Alpine container.
+node_modules
+
+# dist: the compiled output is produced inside the builder stage by
+# `npm run build`. Any local copy is stale and must not override the build.
+dist
+
+# *.tsbuildinfo: TypeScript incremental build cache, only meaningful on the
+# host. Rebuilt inside the image; never needed at runtime.
+*.tsbuildinfo
+
+# coverage: Jest test-coverage reports. A local artifact, useless in the image.
+coverage
+
+# --- Infrastructure (not part of the runnable service) ----------------------
+
+# cdk + cdk.out: AWS CDK infrastructure project and its synthesized output.
+# This deploys the service to Lambda; it is not needed to RUN the container and
+# carries its own large node_modules. Excluding it greatly shrinks the context.
+cdk
+cdk.out
+
+# --- Tests and dev-only config ----------------------------------------------
+
+# test: e2e test suite — not executed in the production image.
+test
+
+# Linter/formatter configs: used only during development, not at runtime.
+.eslintrc.js
+.prettierrc
+
+# --- Version control & docs -------------------------------------------------
+
+# .git: full repository history. Large and irrelevant to the running app.
+.git
+.gitignore
+
+# Documentation and local helper assets — not part of the service.
+README.md
+DEVELOPMENT_PLAN.md
+pics
+get-token.sh
+
+# --- Secrets / environment --------------------------------------------------
+
+# env.example and any local .env files: configuration is injected at runtime
+# via environment variables, never baked into the image.
+env.example
+.env
+*.local
+
+# --- Editor / OS noise ------------------------------------------------------
+
+.vscode
+.idea
+.DS_Store
+npm-debug.log*
+Dockerfile
+.dockerignore
